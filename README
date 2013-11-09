@@ -1,0 +1,62 @@
+Overview:
+
+Maniacal Mousetrap is a program that locks the cursor to a specified window or
+monitor. This is primarily to avoid accidentally clicking outside of games that,
+for whatever reason, do not lock the cursor on their own.
+
+
+Requirements:
+ * Windows XP or later.
+ * The Visual C++ 2010 runtime libraries.
+
+
+Download:
+
+You can download the latest version at <http://madewokherd.nfshost.com/ManiacalMousetrap/>
+
+Source code is available at <https://github.com/madewokherd/ManiacalMousetrap>
+
+
+Bugs:
+
+Please report any problems you encounter or feature requests at
+<https://github.com/madewokherd/ManiacalMousetrap/issues/new>,
+or email me at <madewokherd@gmail.com>.
+
+This includes any software which interacts badly with Maniacal Mousetrap.
+If locking the mouse prevents a specific game from getting input, and none of
+the options help, that's something I'd like to fix.
+
+Also, it may be possible to fix situations where the mouse does not behave
+behave correctly when clipped under normal circumstances, such as a game where
+dragging the mouse moves the camera but dragging no longer works when the cursor
+hits the edge of the screen. I have a specific game (Cranky Cat) with a problem
+like this that I'd like to fix, and more test cases would be useful.
+
+
+Getting started:
+
+To start the program, simply extract (or build) the .exe file and run it.
+
+Most of the options should be self-explanatory.
+
+Select the area in which to lock the cursor in the "Lock mouse to" section.
+
+For "Warp method", you should probably select "ClipCursor". I'm not aware of any
+situation where "SetCursorPos" works better, but you're welcome to experiment
+with it.
+
+To actually lock the mouse, either activate the specific window or move the
+cursor to the specific monitor you want to use, and then turn on scroll lock.
+The checkbox labelled "Lock mouse right now" will reflect whether the mouse is
+currently locked.
+
+To unlock the mouse, turn off scroll lock.
+
+
+TODO:
+ * Add persistent settings.
+ * Add more ways to activate and deactivate the mouse lock, including custom key combinations.
+ * Add the ability to lock to specific coordinates instead of a window or monitor.
+ * Add more options that work better in specific circumstances.
+
