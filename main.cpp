@@ -13,6 +13,7 @@ HWND main_dialog;
 enum LOCKTO {
 	LOCKTO_FOREGROUNDWINDOW,
 	LOCKTO_FOREGROUNDBORDER,
+	LOCKTO_MONITORWORKAREA,
 };
 LOCKTO lockto = LOCKTO_FOREGROUNDWINDOW;
 
@@ -22,15 +23,21 @@ enum LOCKMETHOD {
 LOCKMETHOD lockmethod = LOCKMETHOD_CLIPCURSOR;
 
 HWND lock_window;
+HMONITOR lock_monitor;
 
 void SetLockingMouse(BOOL new_value)
 {
 	if (is_locking_mouse != new_value)
 	{
 		is_locking_mouse = new_value;
-		if (new_value && (lockto == LOCKTO_FOREGROUNDWINDOW || lockto == LOCKTO_FOREGROUNDBORDER))
+		if (is_locking_mouse)
+		{
+			POINT cursor;
 			lock_window = GetForegroundWindow();
-		if (!new_value && lockmethod == LOCKMETHOD_CLIPCURSOR)
+			GetCursorPos(&cursor);
+			lock_monitor = MonitorFromPoint(cursor, MONITOR_DEFAULTTONEAREST);
+		}
+		if (!is_locking_mouse && lockmethod == LOCKMETHOD_CLIPCURSOR)
 			ClipCursor(NULL);
 		if (main_dialog)
 			Button_SetCheck(GetDlgItem(main_dialog, IDC_CHECKACTIVE), is_locking_mouse);
@@ -44,6 +51,7 @@ void SetLockTo(LOCKTO new_value)
 		lockto = new_value;
 		Button_SetCheck(GetDlgItem(main_dialog, IDC_RADIO_LOCKTO_FOREGROUND), lockto == LOCKTO_FOREGROUNDWINDOW);
 		Button_SetCheck(GetDlgItem(main_dialog, IDC_RADIO_LOCKTO_FOREGROUNDBORDER), lockto == LOCKTO_FOREGROUNDBORDER);
+		Button_SetCheck(GetDlgItem(main_dialog, IDC_RADIO_LOCKTO_WORKAREA), lockto == LOCKTO_MONITORWORKAREA);
 	}
 }
 
@@ -105,6 +113,14 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam)
 			GetWindowRect(lock_window, &lock_rect);
 
 			break;
+		case LOCKTO_MONITORWORKAREA:
+		{
+			MONITORINFO mi;
+			mi.cbSize = sizeof(mi);
+			GetMonitorInfo(lock_monitor, &mi);
+			lock_rect = mi.rcWork;
+			break;
+		}
 		}
 
 		switch (lockmethod)
@@ -128,6 +144,7 @@ INT_PTR CALLBACK MainDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
 		Button_SetCheck(GetDlgItem(main_dialog, IDC_CHECKACTIVE), is_locking_mouse);
 		Button_SetCheck(GetDlgItem(main_dialog, IDC_RADIO_LOCKTO_FOREGROUND), lockto == LOCKTO_FOREGROUNDWINDOW);
 		Button_SetCheck(GetDlgItem(main_dialog, IDC_RADIO_LOCKTO_FOREGROUNDBORDER), lockto == LOCKTO_FOREGROUNDBORDER);
+		Button_SetCheck(GetDlgItem(main_dialog, IDC_RADIO_LOCKTO_WORKAREA), lockto == LOCKTO_MONITORWORKAREA);
 		return TRUE;
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
@@ -155,6 +172,15 @@ INT_PTR CALLBACK MainDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
 			case BN_CLICKED:
 				if (Button_GetCheck((HWND)lParam))
 					SetLockTo(LOCKTO_FOREGROUNDBORDER);
+				return TRUE;
+			}
+			break;
+		case IDC_RADIO_LOCKTO_WORKAREA:
+			switch (HIWORD(wParam))
+			{
+			case BN_CLICKED:
+				if (Button_GetCheck((HWND)lParam))
+					SetLockTo(LOCKTO_MONITORWORKAREA);
 				return TRUE;
 			}
 			break;
